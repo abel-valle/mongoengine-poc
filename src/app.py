@@ -37,7 +37,7 @@ class Movie(db.Document):
     imdb = db.EmbeddedDocumentField(Imdb)
 
 
-@app.route('/movies')
+@app.route('/movies', methods=['GET'])
 def get_movies():
     # Get all objects.
     # movies = Movie.objects()
@@ -45,23 +45,23 @@ def get_movies():
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
     movies = Movie.objects.paginate(page=page, per_page=limit)
-    return jsonify([movie.to_dict() for movie in movies.items]), 200
+    return jsonify([movie for movie in movies.items]), 200
 
 
-@app.route('/movies/<id>')
-def get_one_movie(id: str):
-    movie = Movie.objects.first_or_404(id=id)
+@app.route('/movies/<id>', methods=['GET'])
+def get_one_movie(id):
+    movie = Movie.objects(id=id).first_or_404()
     return jsonify(movie), 200
 
 
-@app.route('/movies/', methods=['POST'])
+@app.route('/movies', methods=['POST'])
 def add_movie():
     body = request.get_json()
     movie = Movie(**body).save()
     return jsonify(movie), 201
 
 
-@app.route('/movies-embed/', methods=['POST'])
+@app.route('/movies-embed', methods=['POST'])
 def add_movie_embed():
     # Created Imdb object.
     imdb = Imdb(imdb_id='1234mov', rating=4.2, votes=7.9)
@@ -71,7 +71,7 @@ def add_movie_embed():
     return jsonify(movie), 201
 
 
-@app.route('/director/', methods=['POST'])
+@app.route('/directors', methods=['POST'])
 def add_dir():
     body = request.get_json()
     director = Director(**body).save()
@@ -81,7 +81,7 @@ def add_dir():
 @app.route('/movies/<id>', methods=['PUT'])
 def update_movie(id):
     body = request.get_json()
-    movie = Movie.objects.get_or_404(id=id)
+    movie = Movie.objects(id=id).get_or_404()
     movie.update(**body)
     return jsonify(str(movie.id)), 200
 
@@ -90,13 +90,13 @@ def update_movie(id):
 def update_movie_many(year):
     body = request.get_json()
     movies = Movie.objects(year=year)
-    movies.updates(**body)
+    movies.update(**body)
     return jsonify([str(movie.id) for movie in movies]), 200
 
 
 @app.route('/movies/<id>', methods=['DELETE'])
 def delete_movie(id):
-    movie = Movie.objects.get_or_404(id=id)
+    movie = Movie.objects(id=id).get_or_404()
     movie.delete()
     return jsonify(str(movie.id)), 200
 
