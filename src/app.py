@@ -66,7 +66,7 @@ def add_movie_embed():
     # Created Imdb object.
     imdb = Imdb(imdb_id='1234mov', rating=4.2, votes=7.9)
     body = request.get_json()
-    # Add object to mivie and save.
+    # Add object to movie and save.
     movie = Movie(imdb=imdb, **body).save()
     return jsonify(movie), 201
 
@@ -74,6 +74,11 @@ def add_movie_embed():
 @app.route('/directors', methods=['POST'])
 def add_dir():
     body = request.get_json()
+    # Other way to create a director.
+    # director = Director()
+    # director.name = body.get("name")
+    # director.age = body.get("age")
+    # director.save()
     director = Director(**body).save()
     return jsonify(director), 201
 
